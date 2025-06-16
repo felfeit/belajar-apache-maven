@@ -126,3 +126,69 @@ Berikut adalah beberapa tahapan umum dalam *lifecycle* Maven beserta penjelasan 
 | **`package`**      | Mengemas aplikasi jadi file `.jar`, `.war`, atau format lainnya.              |
 | **`install`**      | Menyimpan hasil build ke **local repository**, agar bisa dipakai proyek lain. |
 | **`deploy`**       | Mengirim hasil build ke **remote repository** (misalnya Nexus, Artifactory).  |
+
+# Dependency
+Dalam project Java, seringkali kita membutuhkan dependency (library) lain, misalnya untuk logging, koneksi database, atau testing.
+
+**Tanpa Maven**, kita harus:
+- Mencari file `.jar` secara manual.
+- Menyalin file ke folder project.
+- Mengatur classpath sendiri.
+
+**Dengan Maven**, semua proses itu otomatis. Cukup tambahkan informasi dependency pada file `pom.xml`, maka Maven akan:
+- Mengunduh file `.jar` yang dibutuhkan.
+- Memasukkannya kedalam project secara otomatis.
+- Mengatur classpath dengan benar.
+
+## Dependency Scope
+Saat menambahkan dependency ke dalam Maven, kita bisa menentukan scope-nya, yaitu ruang lingkup penggunaannya:
+
+| Scope         | Deskripsi                                                                                                    |
+|---------------|--------------------------------------------------------------------------------------------------------------|
+| **`compile`** | (default) Dependency digunakan untuk proses kompilasi, test, dan saat aplikasi dijalankan                    |
+| **`test`**    | Dependency hanya digunakan untuk keperluan testing (misal: JUnit). Tidak akan ikut saat aplikasi dijalankan. |
+
+Scope lain yang lebih jarang digunakan: `provided`, `runtime`, `system`, `import`.
+
+Baca panduan mengenai mekanisme dependency disini [Introduction to depdendency mechanism](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
+
+### Contoh kode menambahkan Dependency
+![Maven Dependency](assets/dependency.png)
+
+## Situs Pencarian Dependency Maven
+Untuk mencari dependency yang ingin ditambahkan, kamu bisa menggunakan:
+- [https://search.maven.org/](https://search.maven.org/)
+- [https://mvnrepository.com/](https://mvnrepository.com/)
+
+## Repository
+Repository adalah tempat penyimpanan library atau dependency yang dibutuhkan oleh sebuah project Maven. Ketika menambahkan dependency ke dalam `pom.xml`, Maven akan mencarinya di repository yang sudah ditentukan.
+
+![Maven Repository Diagram](assets/maven_repository.png)
+
+Seperti pada di gambar, arsitektur repository bekerja sebagai berikut:
+- **Source Code** dan **Test Code** membutuhkan library external.
+- **Dependency Management** mengelola semua kebutuhan library.
+- Dari **Repository**, dependency akan ditarik untuk digunakan pada saat:
+  - Compile
+  - Testing
+
+### Jenis Repository di Maven
+| Jenis Repository   | Keterangan                                                                                           |
+|--------------------|------------------------------------------------------------------------------------------------------|
+| Local Repository   | Terletak di komputer user (`~/.m2/repository`). Diisi otomatis saat Maven mengunduh dependency       |
+| Central Repository | Repository default Maven yang bersifat public                                                        |
+| Remote Repository  | Repository eksternal (biasanya milik pihak ketiga) yang bisa ditambahkan secara manual ke `pom.xml`. |
+
+### Contoh kode menambahkan repository
+![Custom Repository Code](assets/repository.png)
+
+# Maven Properties
+Maven mendukung penggunaan **properties** untuk menyimpan data konfigurasi project. Fitur ini sangat bermanfaat karena memungkinkan kita untuk **menghindari hardcode** nilai secara langsung di dalam file `pom.xml`.
+
+Dengan menggunakan properties, konfigurasi menjadi lebih **terstruktur, mudah dikelola**, dan dapat digunakan kembali di berbagai bagian project. Ini sangat membantu terutama ketika nilai seperti versi library, encoding, atau pengaturan compiler perlu digunakan di beberapa tempat sekaligus.
+
+### Contoh kode Maven Properties
+![Maven Properties](assets/properties.png)
+
+### Contoh kode menggunakan Maven Properties
+![Using Properties for Dependency](assets/using_properties.png)
