@@ -192,3 +192,93 @@ Dengan menggunakan properties, konfigurasi menjadi lebih **terstruktur, mudah di
 
 ### Contoh kode menggunakan Maven Properties
 ![Using Properties for Dependency](assets/using_properties.png)
+
+# Membuat Distribution File
+Secara default, Maven mendukung pembuatan distribution file menggunakan lifecycle `package`. Namun, file hasil build tersebut biasanya hanya berupa file `.jar` berisi binary code dari project kita **tanpa menyertakan dependency** lain yang dibutuhkan. Akibatnya, file `.jar` ini **tidak bisa langsung dijalankan**, terutama jika bergantung pada library external.
+
+## Menggunakan Maven Assemply Plugin
+Untuk membuat distribution file yang lengkap beserta seluruh dependency-nya, salah satu solusi yang dapat digunakan adalah **Maven Assembly Plugin**. Plugin ini memungkinkan kita untuk membuat bundle file `.jar` utama beserta seluruh dependency dalam satu file (`fat jar` atau `uber jar`).
+
+Baca dokumentasi mengenai Maven Assembly Plugin [disini](https://maven.apache.org/plugins/maven-assembly-plugin/usage.html).
+
+## Cara menggunakan Maven Assembly Plugin
+Tambahkan konfigurasi plugin berikut ke dalam `pom.xml`
+```xml
+
+<project>
+  [...]
+  <build>
+    [...]
+    <plugins>
+      <plugin>
+        <!-- Tambahkan kode plugin Maven Assembly nya -->
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.7.1</version>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          
+          <!-- Menentukan main file -->
+          <archive>
+            <manifest>
+              <mainClass>ganti.dengan.main.class.kamu</mainClass>
+            </manifest>
+          </archive>
+          
+        </configuration>
+
+        <!-- Tambahkan kode ini jika ingin dibundle menjadi 1 distribution file -->
+        <executions>
+          <execution>
+            <id>make-assembly</id> <!-- this is used for inheritance merges -->
+            <phase>package</phase> <!-- bind to the packaging phase -->
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  [...]
+</project>
+```
+
+Setelah konfigurasi ditambahkan, buat distribution file dengan menjalankan perintah ini:
+```
+mvn package assembly:single
+```
+
+Setelah build berhasil
+![Build Succeess](assets/build_assembly.png)
+
+Maka 2 file .jar akan terbuat seperti ini
+![Build .JAR Result](assets/distribution_file.png)
+
+`mycalculator-1.0-SNAPSHOT.jar` merupakan file `.jar` **standar** yang hanya berisi class hasil kompilasi project sendiri tanpa menyertakan dependency (library dari luar) yang dibutuhkan.
+
+Sedangkan `mycalculator-1.0-SNAPSHOT-jar-with-dependencies.jar` merupakan file **fat jar** yang dihasilkan oleh Maven Assembly Plugin. File ini berisi class dari project, Semua dependency yang dibutuhkan, dan sudah siap langsung dijalankan.
+
+Untuk menjalankannya, gunakan perintah dibawah ini:
+```
+java -jar target/mycalculator-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+# Multi Module Project
+Ketika aplikasi semakin besar dan kompleks, sangat disarankan untuk memecahnya menjadi beberapa modul agar lebih mudah dikelola dan dikembangkan. Misalnya, kita bisa memisahkan bagian **model, controller, view, service, repository,** dan sebagainya ke dalam modul-modul yang terpisah.
+
+Untungnya, Maven mendukung struktur multi-module project, yaitu proyek utama yang terdiri dari beberapa submodul (anak proyek) yang saling terintegrasi.
+
+### Struktur Multi-Module
+Contoh struktur direktori:
+```
+my-app/
+├── pom.xml             ← parent POM
+├── model/
+│   └── pom.xml         ← modul model
+├── service/
+│   └── pom.xml         ← modul service
+└── web/
+    └── pom.xml         ← modul web
+```
