@@ -150,10 +150,19 @@ Saat menambahkan dependency ke dalam Maven, kita bisa menentukan scope-nya, yait
 
 Scope lain yang lebih jarang digunakan: `provided`, `runtime`, `system`, `import`.
 
-Baca panduan mengenai mekanisme dependency disini [Introduction to depdendency mechanism](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
+Baca panduan mengenai mekanisme dependency disini [Introduction to dependency mechanism](https://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html)
 
 ### Contoh kode menambahkan Dependency
-![Maven Dependency](assets/dependency.png)
+```xml
+<dependencies>
+  <dependency>
+    <groupId>junit</groupId>
+    <artifactId>junit</artifactId>
+    <version>3.8.1</version>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+```
 
 ## Situs Pencarian Dependency Maven
 Untuk mencari dependency yang ingin ditambahkan, kamu bisa menggunakan:
@@ -180,7 +189,18 @@ Seperti pada di gambar, arsitektur repository bekerja sebagai berikut:
 | Remote Repository  | Repository eksternal (biasanya milik pihak ketiga) yang bisa ditambahkan secara manual ke `pom.xml`. |
 
 ### Contoh kode menambahkan repository
-![Custom Repository Code](assets/repository.png)
+```xml
+<project>
+  [...]
+  <repositories>
+    <repository>
+      <id>custom-repo</id>
+      <name>custom-repo-name</name>
+      <url>https://example.com/maven-repo</url>
+    </repository>
+  </repositories>
+</project>
+```
 
 # Maven Properties
 Maven mendukung penggunaan **properties** untuk menyimpan data konfigurasi project. Fitur ini sangat bermanfaat karena memungkinkan kita untuk **menghindari hardcode** nilai secara langsung di dalam file `pom.xml`.
@@ -188,10 +208,27 @@ Maven mendukung penggunaan **properties** untuk menyimpan data konfigurasi proje
 Dengan menggunakan properties, konfigurasi menjadi lebih **terstruktur, mudah dikelola**, dan dapat digunakan kembali di berbagai bagian project. Ini sangat membantu terutama ketika nilai seperti versi library, encoding, atau pengaturan compiler perlu digunakan di beberapa tempat sekaligus.
 
 ### Contoh kode Maven Properties
-![Maven Properties](assets/properties.png)
+```xml
+<project>
+  [...]
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>17</maven.compiler.release>
+    <junit.version>5.12.0</junit.version>
+  </properties>
+</project>
+```
+
 
 ### Contoh kode menggunakan Maven Properties
-![Using Properties for Dependency](assets/using_properties.png)
+```xml
+<dependency>
+  <groupId>org.junit.jupiter</groupId>
+  <artifactId>junit-jupiter</artifactId>
+  <version>${junit.version}</version>
+  <scope>test</scope>
+</dependency>
+```
 
 # Membuat Distribution File
 Secara default, Maven mendukung pembuatan distribution file menggunakan lifecycle `package`. Namun, file hasil build tersebut biasanya hanya berupa file `.jar` berisi binary code dari project kita **tanpa menyertakan dependency** lain yang dibutuhkan. Akibatnya, file `.jar` ini **tidak bisa langsung dijalankan**, terutama jika bergantung pada library external.
@@ -284,4 +321,136 @@ my-app/
 ```
 
 ## Membuat Module Baru
-https://github.com/felfeit/belajar-apache-maven/blob/main/assets/adding-new-module_dark.mp4
+Untuk membuat module baru menggunakan IntelliJ IDEA, kamu bisa mengikuti langkah-langkah seperti pada video berikut:
+https://github.com/user-attachments/assets/f6dc622e-74de-4ef1-ac38-c4e4dfc01790
+
+Sebagai contoh, saya menambahkan 2 module baru dengan nama **MainModule** dan **NewModule**, dan struktur project berubah menjadi seperti berikut:
+
+![Multi Module Project Structure](assets/multi_module_project_structure.png)
+
+Jika sebelumnya kamu sudah memiliki source code pada folder `src` di root project, kamu bisa **memindahkannya ke dalam folder `src` di dalam** `MainModule` agar mengikuti struktur multi-module.
+
+## Konfigurasi Module
+Setelah membuat module baru, IntelliJ IDEA akan otomatis menghasilkan file pom.xml di dalam module tersebut, dengan konfigurasi seperti berikut:
+```xml
+<project>
+  [...]
+  <parent>
+    <groupId>com.felfeit</groupId>
+    <artifactId>mycalculator</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <artifactId>NewModule</artifactId>
+  [...]
+</project>
+```
+Bagian `<parent>` menunjukkan bahwa module ini berada di bawah parent project `mycalculator`.
+
+## Konfigurasi Parent Module
+Pada file `pom.xml` di root project (sebagai parent), akan ditambahkan konfigurasi baru oleh IntelliJ IDEA secara otomatis seperti ini:
+
+```xml
+<groupId>com.felfeit</groupId>
+<artifactId>mycalculator</artifactId>
+<version>1.0-SNAPSHOT</version>
+<packaging>pom</packaging> <!-- Menandakan ini adalah parent POM -->
+
+<name>mycalculator</name>
+        <!-- FIXME change it to the project's website -->
+<url>http://www.example.com</url>
+
+<modules>
+<module>NewModule</module> <!-- Mendaftarkan Module NewModule-->
+<module>MainModule</module> <!-- Mendaftarkan Module MainModule -->
+</modules>
+```
+Bagian `<packaging>pom</packaging>` penting karena menyatakan bahwa project ini hanya berfungsi sebagai pengelola untuk module-module di dalamnya.
+
+## Include Antar Module
+Dalam project multi-module, kita bisa menggunakan class dari satu module di module lainnya. Misalnya, kita ingin menggunakan class `Person` dari `NewModule` di dalam `MainModule`.
+
+### 1. Buat class Person di NewModule
+```java
+package com.example.newmodule;
+
+public class Person {
+    private String name;
+
+    public Person(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+```
+
+### 2. Tambahkan New Module sebagai Dependency di MainModule
+```xml
+<!-- MainModule/pom.xml -->
+<dependencies>
+  <dependency>
+    <groupId>com.example</groupId>
+    <artifactId>NewModule</artifactId>
+    <version>${project.version}</version>
+  </dependency>
+</dependencies>
+```
+
+### 3. Gunakan class Person di MainModule
+```java
+// MainModule/src/main/java/com/example/mainmodule/MainApp.java
+package com.example.mainmodule;
+
+import com.example.newmodule.Person;
+
+public class MainApp {
+    public static void main(String[] args) {
+        Person person = new Person("Joko");
+        System.out.println("Hello, " + person.getName());
+    }
+}
+```
+
+Dengan begitu, kamu berhasil menggunakan class dari module lain hanya dengan menambahkan dependency di `pom.xml` dan mengimpor class-nya seperti biasa. Simpel dan bersih.
+
+# Dependency Management
+Ketika sebuah project sudah memiliki banyak module dan banyak dependency, sangat mudah terjadi konflik versi antara library yang sama. Untuk menghindari hal ini, Maven menyediakan fitur **Dependency Management**.
+
+Dengan fitur ini, kamu cukup mendefinisikan versi dependency di satu tempat saja—biasanya di file `pom.xml` milik parent module. Setelah itu, setiap module cukup mendeklarasikan dependency-nya tanpa menyebutkan versi, karena Maven akan otomatis mengambil versi dari bagian `dependencyManagement`.
+
+## Contoh penggunaan
+
+### 1. Dependency Management di Parent
+Tambahkan di Parent `pom.xml`
+```xml
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+Artinya: semua module yang butuh `junit` tidak perlu lagi menulis versinya.
+
+### 2. Dependency di Module
+Gunakan di Child Module-nya tanpa versi
+```xml
+ <dependencies>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <scope>test</scope>
+  </dependency>
+</dependencies>
+```
+Versi dependency tetap akan digunakan karena sudah diatur di parent.

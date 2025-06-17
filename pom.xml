@@ -11,8 +11,10 @@
     <name>mycalculator</name>
     <!-- FIXME change it to the project's website -->
     <url>http://www.example.com</url>
+
     <modules>
         <module>NewModule</module>
+        <module>MainModule</module>
     </modules>
 
     <properties>
@@ -22,9 +24,7 @@
     </properties>
 
     <dependencyManagement>
-
         <dependencies>
-
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
@@ -32,16 +32,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
-
         </dependencies>
-
     </dependencyManagement>
 
     <dependencies>
@@ -145,12 +142,12 @@
 
     </build>
 
-    <repositories>
-        <repository>
-            <id>custom-repo</id>
-            <name>custom-repo-name</name>
-            <url>https://example.com/maven-repo</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>custom-repo</id>-->
+<!--            <name>custom-repo-name</name>-->
+<!--            <url>https://example.com/maven-repo</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
 </project>
