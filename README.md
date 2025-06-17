@@ -322,6 +322,7 @@ my-app/
 
 ## Membuat Module Baru
 Untuk membuat module baru menggunakan IntelliJ IDEA, kamu bisa mengikuti langkah-langkah seperti pada video berikut:
+
 https://github.com/user-attachments/assets/f6dc622e-74de-4ef1-ac38-c4e4dfc01790
 
 Sebagai contoh, saya menambahkan 2 module baru dengan nama **MainModule** dan **NewModule**, dan struktur project berubah menjadi seperti berikut:
