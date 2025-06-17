@@ -284,4 +284,4 @@ my-app/
 ```
 
 ## Membuat Module Baru
-https://github.com/felfeit/belajar-apache-maven/blob/main/assets/adding-new-module_dark.mp4
+https://github.com/user-attachments/assets/f6dc622e-74de-4ef1-ac38-c4e4dfc01790
