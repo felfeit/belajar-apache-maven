@@ -282,3 +282,6 @@ my-app/
 └── web/
     └── pom.xml         ← modul web
 ```
+
+## Membuat Module Baru
+https://github.com/felfeit/belajar-apache-maven/blob/main/assets/adding-new-module_dark.mp4
